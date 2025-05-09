@@ -359,6 +359,11 @@ class Game {
     }
 
     createExplosionTileEffect(row, col, position, direction = null) {
+        // Calculate the canvas position
+        const canvasRect = this.canvas.getBoundingClientRect();
+        const gameScreenRect = document.getElementById('game-screen').getBoundingClientRect();
+        
+        // Calculate the position relative to the game screen
         const x = col * this.grid.tileSize;
         const y = row * this.grid.tileSize;
         const size = this.grid.tileSize;
@@ -367,8 +372,8 @@ class Game {
         const explosionTile = document.createElement('div');
         explosionTile.className = 'explosion-tile';
         explosionTile.style.position = 'absolute';
-        explosionTile.style.left = `${x}px`;
-        explosionTile.style.top = `${y}px`;
+        explosionTile.style.left = `${canvasRect.left - gameScreenRect.left + x}px`;
+        explosionTile.style.top = `${canvasRect.top - gameScreenRect.top + y}px`;
         explosionTile.style.width = `${size}px`;
         explosionTile.style.height = `${size}px`;
         
@@ -413,6 +418,11 @@ class Game {
     }
     
     createRockFallEffect(row, col) {
+        // Calculate the canvas position
+        const canvasRect = this.canvas.getBoundingClientRect();
+        const gameScreenRect = document.getElementById('game-screen').getBoundingClientRect();
+        
+        // Calculate the position relative to the game screen
         const x = col * this.grid.tileSize;
         const y = row * this.grid.tileSize;
         const size = this.grid.tileSize;
@@ -421,8 +431,8 @@ class Game {
         const rockFallEffect = document.createElement('div');
         rockFallEffect.className = 'rock-fall-effect';
         rockFallEffect.style.position = 'absolute';
-        rockFallEffect.style.left = `${x}px`;
-        rockFallEffect.style.top = `${y}px`;
+        rockFallEffect.style.left = `${canvasRect.left - gameScreenRect.left + x}px`;
+        rockFallEffect.style.top = `${canvasRect.top - gameScreenRect.top + y}px`;
         rockFallEffect.style.width = `${size}px`;
         rockFallEffect.style.height = `${size}px`;
         rockFallEffect.style.backgroundColor = '#777';

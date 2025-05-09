@@ -170,35 +170,61 @@ class Grid {
                 
                 // Draw tile content
                 switch (this.tiles[row][col]) {
-                    case 1: // Breakable wall
-                        ctx.drawImage(
-                            document.getElementById('wall-breakable-img') || createImageFromPath('/wall_breakable.png'), 
-                            x, y, this.tileSize, this.tileSize
-                        );
+                    case 1: // Breakable wall (the "eggs")
+                        const breakableWallImg = document.getElementById('wall-breakable-img');
+                        if (breakableWallImg && breakableWallImg.complete) {
+                            ctx.drawImage(breakableWallImg, x, y, this.tileSize, this.tileSize);
+                        } else {
+                            // Fallback if image not loaded
+                            ctx.fillStyle = '#8B4513'; // Brown fallback
+                            ctx.fillRect(x + 2, y + 2, this.tileSize - 4, this.tileSize - 4);
+                        }
                         break;
                     case 2: // Solid rock
-                        ctx.drawImage(
-                            document.getElementById('wall-solid-img') || createImageFromPath('/wall_solid.png'), 
-                            x, y, this.tileSize, this.tileSize
-                        );
+                        const solidWallImg = document.getElementById('wall-solid-img');
+                        if (solidWallImg && solidWallImg.complete) {
+                            ctx.drawImage(solidWallImg, x, y, this.tileSize, this.tileSize);
+                        } else {
+                            // Fallback if image not loaded
+                            ctx.fillStyle = '#555'; // Gray fallback
+                            ctx.fillRect(x + 2, y + 2, this.tileSize - 4, this.tileSize - 4);
+                        }
                         break;
                     case 3: // Bomb power-up
-                        ctx.drawImage(
-                            document.getElementById('powerup-bomb-img') || createImageFromPath('/powerup_bomb.png'), 
-                            x, y, this.tileSize, this.tileSize
-                        );
+                        const bombPowerupImg = document.getElementById('powerup-bomb-img');
+                        if (bombPowerupImg && bombPowerupImg.complete) {
+                            ctx.drawImage(bombPowerupImg, x, y, this.tileSize, this.tileSize);
+                        } else {
+                            // Fallback
+                            ctx.fillStyle = 'red';
+                            ctx.beginPath();
+                            ctx.arc(x + this.tileSize/2, y + this.tileSize/2, this.tileSize/3, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
                         break;
                     case 4: // Range power-up
-                        ctx.drawImage(
-                            document.getElementById('powerup-range-img') || createImageFromPath('/powerup_range.png'), 
-                            x, y, this.tileSize, this.tileSize
-                        );
+                        const rangePowerupImg = document.getElementById('powerup-range-img');
+                        if (rangePowerupImg && rangePowerupImg.complete) {
+                            ctx.drawImage(rangePowerupImg, x, y, this.tileSize, this.tileSize);
+                        } else {
+                            // Fallback
+                            ctx.fillStyle = 'yellow';
+                            ctx.beginPath();
+                            ctx.arc(x + this.tileSize/2, y + this.tileSize/2, this.tileSize/3, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
                         break;
                     case 5: // Speed power-up
-                        ctx.drawImage(
-                            document.getElementById('powerup-speed-img') || createImageFromPath('/powerup_speed.png'), 
-                            x, y, this.tileSize, this.tileSize
-                        );
+                        const speedPowerupImg = document.getElementById('powerup-speed-img');
+                        if (speedPowerupImg && speedPowerupImg.complete) {
+                            ctx.drawImage(speedPowerupImg, x, y, this.tileSize, this.tileSize);
+                        } else {
+                            // Fallback
+                            ctx.fillStyle = 'green';
+                            ctx.beginPath();
+                            ctx.arc(x + this.tileSize/2, y + this.tileSize/2, this.tileSize/3, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
                         break;
                 }
                 
@@ -211,12 +237,18 @@ class Grid {
     }
 }
 
-// Helper function to create and cache images
+// Improved helper function to create and cache images
 function createImageFromPath(path) {
     const img = new Image();
     img.src = path;
-    img.id = path.substring(1).replace('.', '-') + '-img';
-    document.body.appendChild(img);
-    img.style.display = 'none';
+    const idName = path.substring(1).split('.')[0].replace(/\//g, '-') + '-img';
+    img.id = idName;
+    
+    // Only add to body if it doesn't exist already
+    if (!document.getElementById(idName)) {
+        document.body.appendChild(img);
+        img.style.display = 'none';
+    }
+    
     return img;
 }

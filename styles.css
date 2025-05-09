@@ -182,9 +182,11 @@ button:disabled:hover {
 }
 
 .explosion-tile {
+    position: absolute;
     animation: explosion-pulse 0.8s ease-out;
     box-shadow: 0 0 20px #ff3300;
-    z-index: 5;
+    z-index: 20;
+    pointer-events: none;
 }
 
 @keyframes explosion-pulse {
@@ -203,4 +205,8 @@ button:disabled:hover {
 @keyframes rock-fall {
     0% { opacity: 0; transform: translateY(-50px); }
     100% { opacity: 1; transform: translateY(0); }
+}
+
+#game-screen {
+    position: relative;
 }
