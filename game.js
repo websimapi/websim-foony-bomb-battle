@@ -27,6 +27,9 @@ class Game {
         
         // Start the game loop
         window.requestAnimationFrame(this.gameLoop.bind(this));
+        
+        // Add this to the constructor to verify images are loaded
+        this.verifyImageResources();
     }
     
     async init() {
@@ -509,7 +512,7 @@ class Game {
                     this.processExplosionTile(row, col);
                     blocked = true; // Stop after this tile
                 } else {
-                    // Empty space or power-up - process explosion
+                    // Empty space or power-up
                     this.processExplosionTile(row, col);
                 }
             }
@@ -746,6 +749,30 @@ class Game {
         for (const player of sortedPlayers) {
             player.draw(this.ctx);
         }
+    }
+    
+    verifyImageResources() {
+        const requiredImages = [
+            'wall-breakable-img',
+            'wall-solid-img',
+            'powerup-bomb-img',
+            'powerup-range-img',
+            'powerup-speed-img',
+            'player-icon-img'
+        ];
+        
+        requiredImages.forEach(imgId => {
+            const img = document.getElementById(imgId);
+            if (!img) {
+                console.error(`Missing image element with ID: ${imgId}`);
+            } else if (!img.complete) {
+                console.warn(`Image not yet loaded: ${imgId}`);
+                img.onload = () => console.log(`Image loaded: ${imgId}`);
+                img.onerror = () => console.error(`Failed to load image: ${imgId}`);
+            } else {
+                console.log(`Image already loaded: ${imgId}`);
+            }
+        });
     }
 }
 

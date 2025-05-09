@@ -172,23 +172,20 @@ class Grid {
                 switch (this.tiles[row][col]) {
                     case 1: // Breakable wall (the "eggs")
                         const breakableWallImg = document.getElementById('wall-breakable-img');
-                        ctx.save();
                         if (breakableWallImg && breakableWallImg.complete) {
-                            // Ensure image is properly centered and sized
+                            // Draw the breakable wall image
                             ctx.drawImage(breakableWallImg, x, y, this.tileSize, this.tileSize);
                         } else {
-                            // Improved fallback if image not loaded
+                            // Visible fallback - this makes sure we can see something even if image fails
                             ctx.fillStyle = '#8B4513'; // Brown fallback
-                            ctx.fillRect(x + 2, y + 2, this.tileSize - 4, this.tileSize - 4);
+                            ctx.fillRect(x, y, this.tileSize, this.tileSize);
+                            ctx.strokeStyle = '#5D4037';
+                            ctx.lineWidth = 2;
+                            ctx.strokeRect(x + 2, y + 2, this.tileSize - 4, this.tileSize - 4);
                             
-                            // Reload the image to try again
-                            const img = new Image();
-                            img.src = '/wall_breakable.png';
-                            img.id = 'wall-breakable-img';
-                            document.body.appendChild(img);
-                            img.style.display = 'none';
+                            // Let's log if the image is missing
+                            console.warn('Breakable wall image not loaded correctly');
                         }
-                        ctx.restore();
                         break;
                     case 2: // Solid rock
                         const solidWallImg = document.getElementById('wall-solid-img');
@@ -247,10 +244,9 @@ class Grid {
     }
 }
 
-// Improve image preloading
-window.addEventListener('load', () => {
-    // Force reload of essential images
-    const images = [
+// Ensure images are properly preloaded
+document.addEventListener('DOMContentLoaded', () => {
+    const imagesToPreload = [
         { id: 'wall-breakable-img', src: '/wall_breakable.png' },
         { id: 'wall-solid-img', src: '/wall_solid.png' },
         { id: 'powerup-bomb-img', src: '/powerup_bomb.png' },
@@ -259,11 +255,16 @@ window.addEventListener('load', () => {
         { id: 'player-icon-img', src: '/player_icon.png' }
     ];
 
-    images.forEach(img => {
-        const imgElement = document.getElementById(img.id);
-        if (imgElement) {
-            // Reload the image
-            imgElement.src = img.src + '?refresh=' + new Date().getTime();
+    // Force preload all game images
+    imagesToPreload.forEach(imageData => {
+        const img = document.getElementById(imageData.id);
+        if (img) {
+            // Add a cache-busting parameter to force reload
+            img.src = imageData.src + '?t=' + new Date().getTime();
+            
+            // Log when image is loaded
+            img.onload = () => console.log(`Loaded image: ${imageData.id}`);
+            img.onerror = () => console.error(`Failed to load image: ${imageData.id}`);
         }
     });
 });
