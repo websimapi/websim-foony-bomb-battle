@@ -412,6 +412,46 @@ class Game {
         }, 800);
     }
     
+    createRockFallEffect(row, col) {
+        const x = col * this.grid.tileSize;
+        const y = row * this.grid.tileSize;
+        const size = this.grid.tileSize;
+        
+        // Create visual effect for rock falling
+        const rockElement = document.createElement('div');
+        rockElement.className = 'rock-fall';
+        rockElement.style.position = 'absolute';
+        rockElement.style.left = `${x}px`;
+        rockElement.style.top = `${y}px`;
+        rockElement.style.width = `${size}px`;
+        rockElement.style.height = `${size}px`;
+        rockElement.style.backgroundImage = `url("/wall_solid.png")`;
+        rockElement.style.backgroundSize = 'cover';
+        rockElement.style.zIndex = '10';
+        
+        document.getElementById('game-screen').appendChild(rockElement);
+        
+        // Animate rock falling
+        rockElement.animate([
+            { transform: 'translateY(-100px)', opacity: 0 },
+            { transform: 'translateY(0)', opacity: 1 }
+        ], {
+            duration: 500,
+            easing: 'cubic-bezier(0.5, 0, 1, 1)',
+            fill: 'forwards'
+        });
+        
+        // Play rock fall sound
+        const rockFallSound = new Audio('/rock_fall.mp3');
+        rockFallSound.volume = 0.4;
+        rockFallSound.play();
+        
+        // Remove element after animation
+        setTimeout(() => {
+            rockElement.remove();
+        }, 500);
+    }
+    
     createExplosion(centerRow, centerCol, range) {
         // Center explosion
         this.processExplosionTile(centerRow, centerCol);
