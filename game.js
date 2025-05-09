@@ -417,27 +417,28 @@ class Game {
         const y = row * this.grid.tileSize;
         const size = this.grid.tileSize;
         
-        // Create visual effect for rock falling
-        const rockElement = document.createElement('div');
-        rockElement.className = 'rock-fall';
-        rockElement.style.position = 'absolute';
-        rockElement.style.left = `${x}px`;
-        rockElement.style.top = `${y}px`;
-        rockElement.style.width = `${size}px`;
-        rockElement.style.height = `${size}px`;
-        rockElement.style.backgroundImage = `url("/wall_solid.png")`;
-        rockElement.style.backgroundSize = 'cover';
-        rockElement.style.zIndex = '10';
+        // Create visual effect
+        const rockFallEffect = document.createElement('div');
+        rockFallEffect.className = 'rock-fall-effect';
+        rockFallEffect.style.position = 'absolute';
+        rockFallEffect.style.left = `${x}px`;
+        rockFallEffect.style.top = `${y}px`;
+        rockFallEffect.style.width = `${size}px`;
+        rockFallEffect.style.height = `${size}px`;
+        rockFallEffect.style.backgroundColor = '#777';
+        rockFallEffect.style.zIndex = '5';
+        rockFallEffect.style.boxSizing = 'border-box';
+        rockFallEffect.style.border = '2px solid #555';
         
-        document.getElementById('game-screen').appendChild(rockElement);
+        document.getElementById('game-screen').appendChild(rockFallEffect);
         
-        // Animate rock falling
-        rockElement.animate([
-            { transform: 'translateY(-100px)', opacity: 0 },
-            { transform: 'translateY(0)', opacity: 1 }
+        // Animation for rock falling
+        rockFallEffect.animate([
+            { opacity: 0, transform: 'translateY(-50px)' },
+            { opacity: 1, transform: 'translateY(0)' }
         ], {
             duration: 500,
-            easing: 'cubic-bezier(0.5, 0, 1, 1)',
+            easing: 'cubic-bezier(0.2, 0.8, 0.4, 1)',
             fill: 'forwards'
         });
         
@@ -446,12 +447,12 @@ class Game {
         rockFallSound.volume = 0.4;
         rockFallSound.play();
         
-        // Remove element after animation
+        // Remove effect element after animation
         setTimeout(() => {
-            rockElement.remove();
+            rockFallEffect.remove();
         }, 500);
     }
-    
+
     createExplosion(centerRow, centerCol, range) {
         // Center explosion
         this.processExplosionTile(centerRow, centerCol);
