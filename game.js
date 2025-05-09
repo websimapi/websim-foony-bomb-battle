@@ -312,81 +312,231 @@ class Game {
     }
     
     createExplosionEffect(row, col, size) {
-        // Add explosion visual effect here
-        // This is just a placeholder for a more elaborate effect
-        const x = col * this.grid.tileSize + this.grid.tileSize / 2;
-        const y = row * this.grid.tileSize + this.grid.tileSize / 2;
+        // Create center explosion
+        this.createExplosionTileEffect(row, col, 'center');
         
-        // Create simple particle effect
-        for (let i = 0; i < 20; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'explosion-particle';
-            particle.style.left = `${x}px`;
-            particle.style.top = `${y}px`;
-            particle.style.backgroundColor = '#ff9900';
-            particle.style.width = '10px';
-            particle.style.height = '10px';
-            particle.style.borderRadius = '50%';
-            particle.style.position = 'absolute';
-            particle.style.transform = `translate(-50%, -50%)`;
-            
-            document.getElementById('game-screen').appendChild(particle);
-            
-            // Animate the particle
-            const angle = Math.random() * Math.PI * 2;
-            const distance = Math.random() * size * this.grid.tileSize * 0.8;
-            const duration = 300 + Math.random() * 700;
-            
-            particle.animate([
-                { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
-                { 
-                    transform: `translate(calc(-50% + ${Math.cos(angle) * distance}px), calc(-50% + ${Math.sin(angle) * distance}px)) scale(0)`,
-                    opacity: 0
+        // Create explosion in four directions
+        const directions = [
+            { dr: -1, dc: 0, name: 'up' }, // Up
+            { dr: 1, dc: 0, name: 'down' },  // Down
+            { dr: 0, dc: -1, name: 'left' }, // Left
+            { dr: 0, dc: 1, name: 'right' }   // Right
+        ];
+        
+        for (const dir of directions) {
+            let blocked = false;
+            for (let i = 1; i <= size; i++) {
+                if (blocked) break;
+                
+                const newRow = row + dir.dr * i;
+                const newCol = col + dir.dc * i;
+                
+                // Check if out of bounds
+                if (newRow < 0 || newRow >= this.grid.rows || newCol < 0 || newCol >= this.grid.cols) {
+                    break;
                 }
-            ], {
-                duration: duration,
-                easing: 'ease-out',
-                fill: 'forwards'
-            });
-            
-            // Remove particle after animation
-            setTimeout(() => {
-                particle.remove();
-            }, duration);
+                
+                // Check tile type
+                const tile = this.grid.tiles[newRow][newCol];
+                
+                if (tile === 2) { // Solid rock - stop explosion
+                    break;
+                } else if (tile === 1) { // Breakable wall - show explosion here but stop
+                    this.createExplosionTileEffect(newRow, newCol, i === size ? 'end' : 'middle', dir.name);
+                    blocked = true; // Stop after this tile
+                } else {
+                    // Empty space or power-up
+                    const position = i === size ? 'end' : 'middle';
+                    this.createExplosionTileEffect(newRow, newCol, position, dir.name);
+                }
+            }
         }
+        
+        // Play explosion sound
+        const explosionSound = new Audio('/bomb_explosion.mp3');
+        explosionSound.volume = 0.4;
+        explosionSound.play();
     }
-    
-    createRockFallEffect(row, col) {
-        // Add rock fall visual effect here
+
+    createExplosionTileEffect(row, col, position, direction = null) {
         const x = col * this.grid.tileSize;
         const y = row * this.grid.tileSize;
+        const size = this.grid.tileSize;
         
-        // Create rock element
-        const rock = document.createElement('div');
-        rock.className = 'falling-rock';
-        rock.style.left = `${x}px`;
-        rock.style.top = `${y - this.grid.tileSize * 3}px`;
-        rock.style.width = `${this.grid.tileSize}px`;
-        rock.style.height = `${this.grid.tileSize}px`;
-        rock.style.backgroundColor = '#555';
-        rock.style.position = 'absolute';
+        // Create explosion tile element
+        const explosionTile = document.createElement('div');
+        explosionTile.className = 'explosion-tile';
+        explosionTile.style.position = 'absolute';
+        explosionTile.style.left = `${x}px`;
+        explosionTile.style.top = `${y}px`;
+        explosionTile.style.width = `${size}px`;
+        explosionTile.style.height = `${size}px`;
         
-        document.getElementById('game-screen').appendChild(rock);
+        // Style based on position in explosion
+        if (position === 'center') {
+            explosionTile.style.backgroundColor = '#ff6600';
+            explosionTile.style.borderRadius = '50%';
+        } else {
+            explosionTile.style.backgroundColor = '#ff9900';
+            
+            // Apply styles based on direction
+            if (direction === 'up' || direction === 'down') {
+                explosionTile.style.borderRadius = '20%';
+            } else if (direction === 'left' || direction === 'right') {
+                explosionTile.style.borderRadius = '20%';
+            }
+        }
         
-        // Animate the rock falling
-        rock.animate([
-            { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
-            { transform: `translateY(${this.grid.tileSize * 3}px) rotate(180deg)`, opacity: 1 }
+        explosionTile.style.opacity = '0.8';
+        explosionTile.style.zIndex = '5';
+        explosionTile.style.boxSizing = 'border-box';
+        explosionTile.style.border = '2px solid #ff3300';
+        
+        document.getElementById('game-screen').appendChild(explosionTile);
+        
+        // Animation sequence: fade in, hold, fade out
+        explosionTile.animate([
+            { opacity: 0, transform: 'scale(0.5)' },
+            { opacity: 0.8, transform: 'scale(1.1)' },
+            { opacity: 0.8, transform: 'scale(1)' },
+            { opacity: 0, transform: 'scale(0.8)' }
         ], {
-            duration: 500,
-            easing: 'cubic-bezier(0.5, 0, 0.75, 0)',
+            duration: 800,
+            easing: 'cubic-bezier(0.2, 0.8, 0.4, 1)',
             fill: 'forwards'
         });
         
-        // Remove rock after animation
+        // Remove element after animation
         setTimeout(() => {
-            rock.remove();
-        }, 500);
+            explosionTile.remove();
+        }, 800);
+    }
+    
+    createExplosion(centerRow, centerCol, range) {
+        // Center explosion
+        this.processExplosionTile(centerRow, centerCol);
+        
+        // Explosion in four directions
+        const directions = [
+            { dr: -1, dc: 0 }, // Up
+            { dr: 1, dc: 0 },  // Down
+            { dr: 0, dc: -1 }, // Left
+            { dr: 0, dc: 1 }   // Right
+        ];
+        
+        for (const dir of directions) {
+            let blocked = false;
+            for (let i = 1; i <= range; i++) {
+                if (blocked) break;
+                
+                const row = centerRow + dir.dr * i;
+                const col = centerCol + dir.dc * i;
+                
+                // Check if out of bounds
+                if (row < 0 || row >= this.grid.rows || col < 0 || col >= this.grid.cols) {
+                    break;
+                }
+                
+                // Check tile type
+                const tile = this.grid.tiles[row][col];
+                
+                if (tile === 2) { // Solid rock - stop explosion in this direction
+                    break;
+                } else if (tile === 1) { // Breakable wall - destroy and stop
+                    if (this.grid.destroyWall(row, col)) {
+                        // Update room state with the destroyed wall
+                        const tileUpdate = {};
+                        const tileKey = `${row}-${col}`;
+                        tileUpdate[tileKey] = this.grid.tiles[row][col];
+                        
+                        this.room.updateRoomState({
+                            tileUpdates: tileUpdate
+                        });
+                    }
+                    
+                    // Process explosion on this tile before stopping
+                    this.processExplosionTile(row, col);
+                    blocked = true; // Stop after this tile
+                } else {
+                    // Empty space or power-up - process explosion
+                    this.processExplosionTile(row, col);
+                }
+            }
+        }
+    }
+    
+    processExplosionTile(row, col) {
+        // Check for players on this tile
+        for (const playerId in this.players) {
+            const player = this.players[playerId];
+            
+            if (player.alive) {
+                const playerRow = Math.round(player.y / this.grid.tileSize);
+                const playerCol = Math.round(player.x / this.grid.tileSize);
+                
+                if (playerRow === row && playerCol === col) {
+                    player.hit();
+                }
+            }
+        }
+    }
+    
+    shrinkMap() {
+        if (this.room.clientId === Object.keys(this.players)[0]) { // Only host updates the map
+            const result = this.grid.shrinkMap(this.shrinkCorner, this.shrinkStep);
+            
+            if (result) {
+                // Broadcast rock fall event
+                this.room.send({
+                    type: 'rockFall',
+                    row: result.row,
+                    col: result.col
+                });
+                
+                // Update room state with the new rock
+                const tileUpdate = {};
+                const tileKey = `${result.row}-${result.col}`;
+                tileUpdate[tileKey] = 2; // Solid rock
+                
+                this.shrinkStep++;
+                if (this.shrinkStep % 4 === 0) {
+                    this.shrinkCorner = (this.shrinkCorner + 1) % 4;
+                }
+                
+                this.room.updateRoomState({
+                    tileUpdates: tileUpdate,
+                    shrinkStep: this.shrinkStep,
+                    shrinkCorner: this.shrinkCorner
+                });
+            }
+        }
+    }
+    
+    checkGameOver() {
+        // Count alive players
+        const alivePlayers = Object.values(this.players).filter(p => p.alive);
+        
+        if (this.gameStarted && !this.gameOver && (alivePlayers.length <= 1 && Object.keys(this.players).length > 1)) {
+            this.gameOver = true;
+            
+            if (alivePlayers.length === 1) {
+                this.winner = alivePlayers[0];
+            }
+            
+            // Show game over screen
+            document.getElementById('game-screen').classList.remove('active');
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('game-over-screen').classList.remove('hidden');
+            document.getElementById('game-over-screen').classList.add('active');
+            
+            // Display winner
+            const winnerDisplay = document.getElementById('winner-display');
+            if (this.winner) {
+                winnerDisplay.textContent = `Winner: ${this.winner.username}!`;
+            } else {
+                winnerDisplay.textContent = `No winner! Everyone died!`;
+            }
+        }
     }
     
     gameLoop(timestamp) {
@@ -498,127 +648,6 @@ class Game {
                 bombs: bombRemove
             });
         }, 1000);
-    }
-    
-    createExplosion(centerRow, centerCol, range) {
-        // Center explosion
-        this.processExplosionTile(centerRow, centerCol);
-        
-        // Explosion in four directions
-        const directions = [
-            { dr: -1, dc: 0 }, // Up
-            { dr: 1, dc: 0 },  // Down
-            { dr: 0, dc: -1 }, // Left
-            { dr: 0, dc: 1 }   // Right
-        ];
-        
-        for (const dir of directions) {
-            for (let i = 1; i <= range; i++) {
-                const row = centerRow + dir.dr * i;
-                const col = centerCol + dir.dc * i;
-                
-                // Check if out of bounds
-                if (row < 0 || row >= this.grid.rows || col < 0 || col >= this.grid.cols) {
-                    break;
-                }
-                
-                // Check tile type
-                const tile = this.grid.tiles[row][col];
-                
-                if (tile === 2) { // Solid rock - stop explosion in this direction
-                    break;
-                } else if (tile === 1) { // Breakable wall - destroy and stop
-                    if (this.grid.destroyWall(row, col)) {
-                        // Update room state with the destroyed wall
-                        const tileUpdate = {};
-                        const tileKey = `${row}-${col}`;
-                        tileUpdate[tileKey] = this.grid.tiles[row][col];
-                        
-                        this.room.updateRoomState({
-                            tileUpdates: tileUpdate
-                        });
-                    }
-                    break;
-                } else {
-                    // Empty space or power-up - process explosion
-                    this.processExplosionTile(row, col);
-                }
-            }
-        }
-    }
-    
-    processExplosionTile(row, col) {
-        // Check for players on this tile
-        for (const playerId in this.players) {
-            const player = this.players[playerId];
-            
-            if (player.alive) {
-                const playerRow = Math.round(player.y / this.grid.tileSize);
-                const playerCol = Math.round(player.x / this.grid.tileSize);
-                
-                if (playerRow === row && playerCol === col) {
-                    player.hit();
-                }
-            }
-        }
-    }
-    
-    shrinkMap() {
-        if (this.room.clientId === Object.keys(this.players)[0]) { // Only host updates the map
-            const result = this.grid.shrinkMap(this.shrinkCorner, this.shrinkStep);
-            
-            if (result) {
-                // Broadcast rock fall event
-                this.room.send({
-                    type: 'rockFall',
-                    row: result.row,
-                    col: result.col
-                });
-                
-                // Update room state with the new rock
-                const tileUpdate = {};
-                const tileKey = `${result.row}-${result.col}`;
-                tileUpdate[tileKey] = 2; // Solid rock
-                
-                this.shrinkStep++;
-                if (this.shrinkStep % 4 === 0) {
-                    this.shrinkCorner = (this.shrinkCorner + 1) % 4;
-                }
-                
-                this.room.updateRoomState({
-                    tileUpdates: tileUpdate,
-                    shrinkStep: this.shrinkStep,
-                    shrinkCorner: this.shrinkCorner
-                });
-            }
-        }
-    }
-    
-    checkGameOver() {
-        // Count alive players
-        const alivePlayers = Object.values(this.players).filter(p => p.alive);
-        
-        if (this.gameStarted && !this.gameOver && (alivePlayers.length <= 1 && Object.keys(this.players).length > 1)) {
-            this.gameOver = true;
-            
-            if (alivePlayers.length === 1) {
-                this.winner = alivePlayers[0];
-            }
-            
-            // Show game over screen
-            document.getElementById('game-screen').classList.remove('active');
-            document.getElementById('game-screen').classList.add('hidden');
-            document.getElementById('game-over-screen').classList.remove('hidden');
-            document.getElementById('game-over-screen').classList.add('active');
-            
-            // Display winner
-            const winnerDisplay = document.getElementById('winner-display');
-            if (this.winner) {
-                winnerDisplay.textContent = `Winner: ${this.winner.username}!`;
-            } else {
-                winnerDisplay.textContent = `No winner! Everyone died!`;
-            }
-        }
     }
     
     draw() {

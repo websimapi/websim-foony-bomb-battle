@@ -171,30 +171,34 @@ class Grid {
                 // Draw tile content
                 switch (this.tiles[row][col]) {
                     case 1: // Breakable wall
-                        ctx.fillStyle = '#a77b52'; // Wood
-                        ctx.fillRect(x + 2, y + 2, this.tileSize - 4, this.tileSize - 4);
+                        ctx.drawImage(
+                            document.getElementById('wall-breakable-img') || createImageFromPath('/wall_breakable.png'), 
+                            x, y, this.tileSize, this.tileSize
+                        );
                         break;
                     case 2: // Solid rock
-                        ctx.fillStyle = '#555'; // Stone
-                        ctx.fillRect(x + 2, y + 2, this.tileSize - 4, this.tileSize - 4);
+                        ctx.drawImage(
+                            document.getElementById('wall-solid-img') || createImageFromPath('/wall_solid.png'), 
+                            x, y, this.tileSize, this.tileSize
+                        );
                         break;
                     case 3: // Bomb power-up
-                        ctx.fillStyle = '#f00'; // Red
-                        ctx.beginPath();
-                        ctx.arc(x + this.tileSize/2, y + this.tileSize/2, this.tileSize/4, 0, Math.PI * 2);
-                        ctx.fill();
+                        ctx.drawImage(
+                            document.getElementById('powerup-bomb-img') || createImageFromPath('/powerup_bomb.png'), 
+                            x, y, this.tileSize, this.tileSize
+                        );
                         break;
                     case 4: // Range power-up
-                        ctx.fillStyle = '#ff0'; // Yellow
-                        ctx.beginPath();
-                        ctx.arc(x + this.tileSize/2, y + this.tileSize/2, this.tileSize/4, 0, Math.PI * 2);
-                        ctx.fill();
+                        ctx.drawImage(
+                            document.getElementById('powerup-range-img') || createImageFromPath('/powerup_range.png'), 
+                            x, y, this.tileSize, this.tileSize
+                        );
                         break;
                     case 5: // Speed power-up
-                        ctx.fillStyle = '#0f0'; // Green
-                        ctx.beginPath();
-                        ctx.arc(x + this.tileSize/2, y + this.tileSize/2, this.tileSize/4, 0, Math.PI * 2);
-                        ctx.fill();
+                        ctx.drawImage(
+                            document.getElementById('powerup-speed-img') || createImageFromPath('/powerup_speed.png'), 
+                            x, y, this.tileSize, this.tileSize
+                        );
                         break;
                 }
                 
@@ -207,3 +211,12 @@ class Grid {
     }
 }
 
+// Helper function to create and cache images
+function createImageFromPath(path) {
+    const img = new Image();
+    img.src = path;
+    img.id = path.substring(1).replace('.', '-') + '-img';
+    document.body.appendChild(img);
+    img.style.display = 'none';
+    return img;
+}

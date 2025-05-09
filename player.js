@@ -150,6 +150,11 @@ class Player {
             const tile = this.game.grid.tiles[tileRow][tileCol];
             
             if (tile >= 3 && tile <= 5) { // Power-up tiles
+                // Play power-up sound
+                const powerupSound = new Audio('/powerup_collect.mp3');
+                powerupSound.volume = 0.5;
+                powerupSound.play();
+                
                 // Apply power-up
                 switch (tile) {
                     case 3: // Bomb count
@@ -256,6 +261,11 @@ class Player {
         this.bubble = true;
         this.bubbleTimer = 3000; // 3 seconds
         
+        // Play bubble sound
+        const bubbleSound = new Audio('/player_bubble.mp3');
+        bubbleSound.volume = 0.5;
+        bubbleSound.play();
+        
         // If this is the local player, update presence
         if (this.id === this.game.room.clientId) {
             this.game.room.updatePresence({
@@ -321,4 +331,3 @@ class Player {
         }
     }
 }
-
