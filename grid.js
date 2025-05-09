@@ -71,8 +71,8 @@ class Grid {
         if (this.tiles[row][col] === 1) { // Breakable wall
             this.tiles[row][col] = 0; // Make it empty
             
-            // Chance to spawn a power-up
-            if (Math.random() < 0.3) {
+            // Chance to spawn a power-up - increased from 30% to 60%
+            if (Math.random() < 0.6) {
                 // Types: 
                 // 3 = bomb count, 4 = explosion range, 5 = speed
                 const powerupType = 3 + Math.floor(Math.random() * 3);
@@ -172,13 +172,23 @@ class Grid {
                 switch (this.tiles[row][col]) {
                     case 1: // Breakable wall (the "eggs")
                         const breakableWallImg = document.getElementById('wall-breakable-img');
+                        ctx.save();
                         if (breakableWallImg && breakableWallImg.complete) {
+                            // Ensure image is properly centered and sized
                             ctx.drawImage(breakableWallImg, x, y, this.tileSize, this.tileSize);
                         } else {
-                            // Fallback if image not loaded
+                            // Improved fallback if image not loaded
                             ctx.fillStyle = '#8B4513'; // Brown fallback
                             ctx.fillRect(x + 2, y + 2, this.tileSize - 4, this.tileSize - 4);
+                            
+                            // Reload the image to try again
+                            const img = new Image();
+                            img.src = '/wall_breakable.png';
+                            img.id = 'wall-breakable-img';
+                            document.body.appendChild(img);
+                            img.style.display = 'none';
                         }
+                        ctx.restore();
                         break;
                     case 2: // Solid rock
                         const solidWallImg = document.getElementById('wall-solid-img');
@@ -237,18 +247,23 @@ class Grid {
     }
 }
 
-// Improved helper function to create and cache images
-function createImageFromPath(path) {
-    const img = new Image();
-    img.src = path;
-    const idName = path.substring(1).split('.')[0].replace(/\//g, '-') + '-img';
-    img.id = idName;
-    
-    // Only add to body if it doesn't exist already
-    if (!document.getElementById(idName)) {
-        document.body.appendChild(img);
-        img.style.display = 'none';
-    }
-    
-    return img;
-}
+// Improve image preloading
+window.addEventListener('load', () => {
+    // Force reload of essential images
+    const images = [
+        { id: 'wall-breakable-img', src: '/wall_breakable.png' },
+        { id: 'wall-solid-img', src: '/wall_solid.png' },
+        { id: 'powerup-bomb-img', src: '/powerup_bomb.png' },
+        { id: 'powerup-range-img', src: '/powerup_range.png' },
+        { id: 'powerup-speed-img', src: '/powerup_speed.png' },
+        { id: 'player-icon-img', src: '/player_icon.png' }
+    ];
+
+    images.forEach(img => {
+        const imgElement = document.getElementById(img.id);
+        if (imgElement) {
+            // Reload the image
+            imgElement.src = img.src + '?refresh=' + new Date().getTime();
+        }
+    });
+});
