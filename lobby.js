@@ -41,7 +41,7 @@ class Lobby {
         // Listen for presence updates to update the lobby UI
         this.room.subscribePresence(this.updateLobbyUI.bind(this));
         
-        // Handle messages for lobby management
+        // Handle messages for lobby management - ensure we don't override the game's message handler
         const originalOnMessage = this.room.onmessage;
         this.room.onmessage = (event) => {
             const data = event.data;
@@ -52,6 +52,12 @@ class Lobby {
                     break;
                 case 'lobbyList':
                     this.displayLobbies(data.lobbies);
+                    break;
+                case 'startGame':
+                    // Make sure start game event is still handled
+                    if (originalOnMessage) {
+                        originalOnMessage(event);
+                    }
                     break;
                 default:
                     // Call the original handler
@@ -344,12 +350,16 @@ class Lobby {
             document.getElementById('ready-btn').textContent = localPlayerData.ready ? 'Not Ready' : 'Ready';
         }
         
-        // Update visibility of start game button
-        this.startGameBtn.classList.toggle('hidden', !this.isHost);
+        // Update visibility of start game button - make sure it's not hidden for the host
+        if (this.isHost) {
+            this.startGameBtn.classList.remove('hidden');
+        } else {
+            this.startGameBtn.classList.add('hidden');
+        }
         
         // Enable start button if all players are ready
         if (this.isHost) {
-            const canStart = playersInLobby >= 2 && playersReady === playersInLobby - (this.isHost ? 1 : 0);
+            const canStart = playersInLobby >= 2 && playersReady >= playersInLobby - (localPlayerData.ready ? 0 : 1);
             this.startGameBtn.disabled = !canStart;
         }
     }
@@ -360,4 +370,3 @@ document.addEventListener('DOMContentLoaded', () => {
     const lobby = new Lobby();
     window.lobby = lobby; // Make lobby accessible globally
 });
-

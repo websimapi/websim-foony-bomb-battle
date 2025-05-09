@@ -66,6 +66,8 @@ class Game {
     startGame(hostId) {
         if (this.gameStarted) return;
         
+        console.log("Starting game as host:", this.room.clientId === hostId);
+        
         // Create the grid
         this.grid = new Grid(this, 15, 15);
         
@@ -74,7 +76,8 @@ class Game {
         for (const clientId in this.room.presence) {
             const playerData = this.room.presence[clientId];
             
-            if (playerData.ready) {
+            if (playerData.ready || (clientId === hostId)) {
+                // Include the host even if not marked as ready
                 const playerInfo = this.room.peers[clientId];
                 
                 this.players[clientId] = new Player(
@@ -143,6 +146,8 @@ class Game {
                 timeElapsed: 0
             });
         }
+        
+        console.log("Game started successfully");
     }
     
     handlePresenceUpdate(presence) {
@@ -288,9 +293,11 @@ class Game {
     
     handleMessage(event) {
         const data = event.data;
+        console.log("Received message:", data.type);
         
         switch (data.type) {
             case 'startGame':
+                console.log("Starting game with host:", data.hostId);
                 this.startGame(data.hostId);
                 break;
             case 'explosion':
@@ -667,4 +674,3 @@ document.addEventListener('DOMContentLoaded', () => {
     const game = new Game();
     window.game = game; // Make game accessible globally
 });
-
