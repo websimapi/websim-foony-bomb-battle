@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foony - Bomb Battle</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Lobby Screen -->
+        <div id="lobby-screen" class="screen active">
+            <h1>Foony</h1>
+            <div class="lobby-actions">
+                <button id="create-lobby-btn">Create Lobby</button>
+                <button id="join-lobby-btn">Join Lobby</button>
+            </div>
+            <div id="lobby-list" class="hidden">
+                <h2>Available Lobbies</h2>
+                <ul id="lobbies"></ul>
+                <button id="refresh-lobbies-btn">Refresh</button>
+                <button id="back-btn">Back</button>
+            </div>
+            <div id="lobby-room" class="hidden">
+                <h2>Lobby: <span id="lobby-id"></span></h2>
+                <div id="players-list"></div>
+                <div class="lobby-controls">
+                    <button id="ready-btn">Ready</button>
+                    <button id="leave-lobby-btn">Leave</button>
+                    <button id="start-game-btn" class="hidden">Start Game</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen hidden">
+            <div id="game-info">
+                <div id="player-stats">
+                    <div id="player-bombs">Bombs: 1</div>
+                    <div id="player-range">Range: 1</div>
+                    <div id="player-speed">Speed: 1</div>
+                </div>
+                <div id="timer">Time: 0:00</div>
+                <div id="players-alive">Players: 0/0</div>
+            </div>
+            <canvas id="game-canvas"></canvas>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="screen hidden">
+            <h2>Game Over!</h2>
+            <div id="winner-display"></div>
+            <button id="return-lobby-btn">Return to Lobby</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+    <script src="lobby.js"></script>
+    <script src="player.js"></script>
+    <script src="grid.js"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
+

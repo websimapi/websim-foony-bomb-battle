@@ -1,0 +1,172 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-color: #121212;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#game-container {
+    width: 100%;
+    max-width: 800px;
+    height: 100%;
+    max-height: 800px;
+    position: relative;
+}
+
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.screen.active {
+    display: flex;
+}
+
+h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+    color: #f5a623;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+h2 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: #f5a623;
+}
+
+button {
+    background-color: #f5a623;
+    border: none;
+    color: black;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    margin: 10px;
+    cursor: pointer;
+    transition: transform 0.1s, background-color 0.3s;
+}
+
+button:hover {
+    background-color: #ffc107;
+    transform: scale(1.05);
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+.lobby-actions, .lobby-controls {
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+}
+
+#lobby-list, #lobby-room {
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#lobby-list ul {
+    list-style: none;
+    margin: 20px 0;
+    max-height: 300px;
+    overflow-y: auto;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    padding: 10px;
+}
+
+#lobby-list li {
+    padding: 10px;
+    margin: 5px 0;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#lobby-list li:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+#players-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.player-card {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    padding: 10px;
+    margin: 5px;
+    width: 120px;
+    text-align: center;
+}
+
+.player-ready {
+    background-color: rgba(0, 255, 0, 0.3);
+}
+
+#game-canvas {
+    background-color: #222;
+    display: block;
+    border-radius: 5px;
+    width: 100%;
+    height: 100%;
+    max-width: 800px;
+    max-height: 800px;
+}
+
+#game-info {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    justify-content: space-between;
+    width: calc(100% - 20px);
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+#player-stats {
+    display: flex;
+    gap: 10px;
+}
+
+#winner-display {
+    font-size: 24px;
+    margin: 20px 0;
+    text-align: center;
+}
+
